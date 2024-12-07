@@ -5,28 +5,103 @@ import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
+import com.badlogic.gdx.physics.box2d.FixtureDef;
+import com.badlogic.gdx.physics.box2d.PolygonShape;
+import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.physics.box2d.BodyDef;
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 public class Main extends ApplicationAdapter {
     private SpriteBatch batch;
+    private OrthographicCamera camera;
+    private ShapeRenderer shapeRenderer;
     Texture[] framesL;  // Array to hold individual frames
     Texture[] framesR;  // Array to hold individual frames
     int currentFrameInd;  // Index of the current frame
-    Texture currentFrame;
+    Texture currentFrameTexture;
     float frameTime;   // Time since the last frame update
     float frameDuration = 0.1f; // Duration of each frame (in seconds)
+    private Texture platformTexture;
+
+
+    // Box2D World and Bodies
+    private World world;
+    private Body platformBody;
+    private Body characterBody;
 
     float x, y;        // Position of the character
     float speed = 200; // Movement speed
     boolean moving;    // Is the character moving?
     boolean leftMove;
 
+    private Rectangle platform;
+    private Rectangle characterRect;
+
+    private Box2DDebugRenderer debugRenderer;
+
+
+
+    private void createPlatform() {
+        BodyDef bodyDef = new BodyDef();
+        bodyDef.type = BodyDef.BodyType.StaticBody;
+        bodyDef.position.set(5, 1); // Box2D coordinates (meters)
+
+        platformBody = world.createBody(bodyDef);
+
+        PolygonShape shape = new PolygonShape();
+        shape.setAsBox(4, 0.5f); // Half-width and half-height
+
+        FixtureDef fixtureDef = new FixtureDef();
+        fixtureDef.shape = shape;
+        fixtureDef.density = 1f;
+        fixtureDef.friction = 0.5f;
+
+        platformBody.createFixture(fixtureDef);
+        shape.dispose();
+    }
+
+    private void createCharacter() {
+        BodyDef bodyDef = new BodyDef();
+        bodyDef.type = BodyDef.BodyType.DynamicBody;
+        bodyDef.position.set(5, 3); // Start above the platform
+
+        characterBody = world.createBody(bodyDef);
+
+        PolygonShape shape = new PolygonShape();
+        shape.setAsBox(0.5f, 0.5f); // Half-width and half-height
+
+        FixtureDef fixtureDef = new FixtureDef();
+        fixtureDef.shape = shape;
+        fixtureDef.density = 1f;
+        fixtureDef.friction = 0.5f;
+        fixtureDef.restitution = 0.1f; // Bounciness
+
+        characterBody.createFixture(fixtureDef);
+        shape.dispose();
+    }
+
+
     @Override
     public void create() {
         Gdx.app.setLogLevel(Application.LOG_DEBUG); // Enable debug logs
         batch = new SpriteBatch();
+        shapeRenderer = new ShapeRenderer();
+
+        // Create the Box2D world with gravity
+        world = new World(new Vector2(0, -10f), true);
+        Box2DDebugRenderer b2dr = new Box2DDebugRenderer();
+        b2dr.setDrawBodies(true); //This method set the body lines to invisible
+
+        createPlatform();
+        createCharacter();
 
         // Load frames into the array
         int frameCount = 7; // Number of animation frames
@@ -43,28 +118,48 @@ public class Main extends ApplicationAdapter {
         currentFrameInd = 0;
         frameTime = 0;
         moving = false;
+
+        // Initialize the platform
+        platform = new Rectangle();
+        platform.x = 200; // X position
+        platform.y = 100; // Y position
+        platform.width = 4000;
+        platform.height = 50;
+
+        characterRect = new Rectangle();
+        characterRect.x = 300; // X position
+        characterRect.y = platform.y + platform.height + 100; // Start on top of the platform
+        characterRect.width = 50*2;
+        characterRect.height = 50*2;
+
+
+        platformTexture = new Texture("libgdx.png");
     }
 
     @Override
     public void render() {
+        world.step(1 / 60f, 6, 2);
         // Handle input and update position
         moving = false; // Reset moving state
         if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-            x += speed * Gdx.graphics.getDeltaTime();
+            characterRect.x += speed * Gdx.graphics.getDeltaTime();
             moving = true;
             leftMove = false;
+
+            //characterBody.applyLinearImpulse(new Vector2(1f, 0), new Vector2(characterBody.getPosition().x, characterBody.getPosition().y), true);
+            characterBody.applyLinearImpulse(new Vector2(0.2f, 0), characterBody.getWorldCenter(), true);
         }
         if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-            x -= speed * Gdx.graphics.getDeltaTime();
+            characterRect.x -= speed * Gdx.graphics.getDeltaTime();
             moving = true;
             leftMove = true;
         }
         if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
-            y += speed * Gdx.graphics.getDeltaTime();
+            characterRect.y += speed * Gdx.graphics.getDeltaTime();
             moving = true;
         }
         if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
-            y -= speed * Gdx.graphics.getDeltaTime();
+            characterRect.y -= speed * Gdx.graphics.getDeltaTime();
             moving = true;
         }
 
@@ -85,20 +180,25 @@ public class Main extends ApplicationAdapter {
 
         if (leftMove)
         {
-            currentFrame = framesL[currentFrameInd];
+            currentFrameTexture = framesL[currentFrameInd];
         }
         else
         {
-            currentFrame = framesR[currentFrameInd];
+            currentFrameTexture = framesR[currentFrameInd];
         }
 
-        Gdx.gl.glClearColor(1, 1, 1, 1);
+        Gdx.gl.glClearColor(0.5f, 1, 1, 1);
         // Clear the screen
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         // Draw the current frame at the updated position
+        //batch.setProjectionMatrix(camera.combined);
         batch.begin();
-        batch.draw(currentFrame, x, y);
+        //batch.draw(currentFrameTexture, characterRect.x, characterRect.y, characterRect.width, characterRect.height);
+        batch.draw(platformTexture, platform.x, platform.y, platform.width, platform.height);
+
+        batch.draw(currentFrameTexture, characterBody.getPosition().x - 0.5f, characterBody.getPosition().y - 0.5f, 100, 100); // Scale to match Box2D size
+
         batch.end();
     }
 
