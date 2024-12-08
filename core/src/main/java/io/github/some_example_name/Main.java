@@ -23,6 +23,7 @@ public class Main extends ApplicationAdapter {
     private TextureRegion characterTextureRegion;
 
     private boolean isOnGround = false;
+    private boolean isGoingUp = false;
 
     @Override
     public void create() {
@@ -76,14 +77,14 @@ public class Main extends ApplicationAdapter {
         // Define the platform body
         BodyDef bodyDef = new BodyDef();
         bodyDef.type = BodyDef.BodyType.StaticBody; // Platform is static
-        bodyDef.position.set(5, 1); // Position in Box2D meters
+        bodyDef.position.set(12, 1); // Position in Box2D meters
 
         // Create the body in the world
         platformBody = world.createBody(bodyDef);
 
         // Define the shape of the platform
         PolygonShape shape = new PolygonShape();
-        shape.setAsBox(4, 0.5f); // Half-width and half-height in meters
+        shape.setAsBox(24, 0.5f); // Half-width and half-height in meters
 
         // Attach the shape to the platform body
         platformBody.createFixture(shape, 0f); // Density = 0 for static bodies
@@ -141,26 +142,43 @@ public class Main extends ApplicationAdapter {
 
     private void characterMotion()
     {
+        Vector2 currentVelocity = characterBody.getLinearVelocity();
         if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-            characterBody.applyLinearImpulse(new Vector2(0.2f, 0), characterBody.getWorldCenter(), true);
-        }
-        if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-            characterBody.applyLinearImpulse(new Vector2(-0.2f, 0), characterBody.getWorldCenter(), true);
-        }
-        if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
-            //characterBody.applyLinearImpulse(new Vector2(0, 1), characterBody.getWorldCenter(), true);
-            characterBody.setLinearVelocity(new Vector2(0, 10));
-            characterBody.setLinearDamping(10);
-        }
-        if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
-            characterBody.applyLinearImpulse(new Vector2(0, -1), characterBody.getWorldCenter(), true);
+            characterBody.setLinearVelocity(new Vector2(5, currentVelocity.y));
         }
 
-        if (characterBody.getLinearVelocity().y == 0)
-        {
-            characterBody.setLinearDamping(0);
-            System.out.println("zero!!!");
+        if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
+            characterBody.setLinearVelocity(new Vector2(-5f, currentVelocity.y));
         }
+
+        if (Gdx.input.isKeyPressed(Input.Keys.SPACE) && isOnGround) {
+            //characterBody.applyLinearImpulse(new Vector2(0, 1), characterBody.getWorldCenter(), true);
+            characterBody.setLinearVelocity(new Vector2(currentVelocity.x, 10));
+        }
+
+        if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
+            characterBody.setLinearVelocity(new Vector2(currentVelocity.x, -5));
+        }
+
+        if ( !(Gdx.input.isKeyPressed(Input.Keys.RIGHT) ||
+                Gdx.input.isKeyPressed(Input.Keys.LEFT) ||
+                Gdx.input.isKeyPressed(Input.Keys.SPACE) ||
+                Gdx.input.isKeyPressed(Input.Keys.DOWN)) && isOnGround )
+        {
+            characterBody.setLinearVelocity(0,0 );
+        }
+
+        if (isGoingUp)
+        {
+            if (characterBody.getLinearVelocity().y < 0.0f)
+            {
+                System.out.println("CHANGE DIRECTION");
+            }
+        }
+
+        isGoingUp = characterBody.getLinearVelocity().y > 0.0f;
+        System.out.println("going up: " + isGoingUp);
+
     }
 
     @Override
@@ -200,10 +218,6 @@ public class Main extends ApplicationAdapter {
 
         // Update the camera
         camera.update();
-
-        System.out.println("Is on ground: " + isOnGround);
-
-        //System.out.println("x: " + characterBody.getLinearVelocity().x + "; y: " + characterBody.getLinearVelocity().y);
     }
 
     @Override
