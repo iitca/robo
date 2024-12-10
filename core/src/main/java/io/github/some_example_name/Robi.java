@@ -25,7 +25,7 @@ public class Robi {
     private Texture characterTexture;
     private TextureRegion characterTextureRegion;
     private boolean isOnGround = false;
-    private boolean isGoingUp = false;
+
     private World w;
 
     public Robi(World world)
@@ -58,7 +58,11 @@ public class Robi {
         fixtureDef.density = 1.0f; // Density affects mass
         fixtureDef.friction = 0.5f; // Friction with ground
         fixtureDef.restitution = 0.3f; // Slight bounce
+        fixtureDef.filter.maskBits = 0xFF;
+        fixtureDef.filter.categoryBits = 0x1;
+
         characterBody.createFixture(fixtureDef);
+        characterBody.setFixedRotation(true);
 
         // Load character texture
         characterTexture = new Texture("robi/move_left/sketch_L_0.png"); // Ensure this is in the assets folder
@@ -66,7 +70,7 @@ public class Robi {
 
 
         PolygonShape sensorShape = new PolygonShape();
-        sensorShape.setAsBox(0.4f, 0.1f, new Vector2(0, -0.5f), 0);
+        sensorShape.setAsBox(0.5f, 0.2f, new Vector2(0, -0.5f), 0);
         FixtureDef sensorFixtureDef = new FixtureDef();
         sensorFixtureDef.shape = sensorShape;
         sensorFixtureDef.isSensor = true;
@@ -135,16 +139,6 @@ public class Robi {
         {
             characterBody.setLinearVelocity(0,0 );
         }
-
-        if (isGoingUp)
-        {
-            if (characterBody.getLinearVelocity().y < 0.0f)
-            {
-                System.out.println("CHANGE DIRECTION");
-            }
-        }
-
-        isGoingUp = characterBody.getLinearVelocity().y > 0.0f;
 
         if (isOnGround)
         {
