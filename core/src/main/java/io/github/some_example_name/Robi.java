@@ -57,7 +57,7 @@ public class Robi {
         fixtureDef.shape = shape;
         fixtureDef.density = 1.0f; // Density affects mass
         fixtureDef.friction = 0.5f; // Friction with ground
-        fixtureDef.restitution = 0.1f; // Slight bounce
+        fixtureDef.restitution = 0.3f; // Slight bounce
         characterBody.createFixture(fixtureDef);
 
         // Load character texture
@@ -120,7 +120,8 @@ public class Robi {
 
         if (Gdx.input.isKeyPressed(Input.Keys.SPACE) && isOnGround) {
             //characterBody.applyLinearImpulse(new Vector2(0, 1), characterBody.getWorldCenter(), true);
-            characterBody.setLinearVelocity(new Vector2(currentVelocity.x, 10));
+            characterBody.setLinearVelocity(new Vector2(currentVelocity.x, 25));
+            characterBody.setGravityScale(5.0f);
         }
 
         if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
@@ -144,6 +145,11 @@ public class Robi {
         }
 
         isGoingUp = characterBody.getLinearVelocity().y > 0.0f;
+
+        if (isOnGround)
+        {
+            //characterBody.setGravityScale(1.0f);
+        }
     }
 
     public void render(SpriteBatch b)
