@@ -18,6 +18,7 @@ public class Main extends ApplicationAdapter {
     private Box2DDebugRenderer debugRenderer;
     SpriteBatch spriteBatch;
     private Robi r;
+    private FallObjCloud cloud;
 
     @Override
     public void create() {
@@ -37,6 +38,8 @@ public class Main extends ApplicationAdapter {
         spriteBatch = new SpriteBatch();
         // Create the platform and character bodies
         createPlatform();
+
+        cloud = new FallObjCloud(world, 8, 16);
     }
 
     private void createPlatform() {
@@ -50,7 +53,7 @@ public class Main extends ApplicationAdapter {
 
         // Define the shape of the platform
         PolygonShape shape = new PolygonShape();
-        shape.setAsBox(24, 0.5f); // Half-width and half-height in meters
+        shape.setAsBox(8, 0.5f); // Half-width and half-height in meters
 
         // Attach the shape to the platform body
         platformBody.createFixture(shape, 0f); // Density = 0 for static bodies
@@ -62,13 +65,14 @@ public class Main extends ApplicationAdapter {
     @Override
     public void render() {
         // Step the physics world
-        world.step(1 / 60f, 6, 2);
+        world.step(1 / 60f, 6, 4);
 
         // Clear the screen
         Gdx.gl.glClearColor(1, 1, 1, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         r.move();
+        cloud.spawn();
 
         spriteBatch.setProjectionMatrix(camera.combined);
         spriteBatch.begin();
