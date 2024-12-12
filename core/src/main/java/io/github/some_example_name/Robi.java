@@ -47,7 +47,7 @@ public class Robi {
         // Define the character body
         BodyDef bodyDef = new BodyDef();
         bodyDef.type = BodyDef.BodyType.DynamicBody; // Character is dynamic
-        bodyDef.position.set(5, 3); // Position in Box2D meters
+        bodyDef.position.set(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2+5); // Position in Box2D meters
 
         // Create the body in the world
         characterBody = w.createBody(bodyDef);
@@ -144,6 +144,10 @@ public class Robi {
         );
     }
 
+    public Vector2 getPosition()
+    {
+        return characterBody.getPosition();
+    }
 
 
 

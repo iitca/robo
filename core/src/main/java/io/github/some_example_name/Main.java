@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 
@@ -15,6 +16,7 @@ public class Main extends ApplicationAdapter {
     private World world;
     private Body platformBody;
     private OrthographicCamera camera;
+    private float followSpeed = 0.25f;
     private Box2DDebugRenderer debugRenderer;
     SpriteBatch spriteBatch;
     private Robi r;
@@ -31,6 +33,8 @@ public class Main extends ApplicationAdapter {
         // Set up the camera
         camera = new OrthographicCamera();
         camera.setToOrtho(false, 800 / 32f, 480 / 32f); // Convert pixels to meters
+        camera.position.x = Gdx.graphics.getWidth()/2;
+        camera.position.y = Gdx.graphics.getHeight()/2 + 5;
 
         // Initialize Box2D debug renderer
         debugRenderer = new Box2DDebugRenderer();
@@ -39,14 +43,14 @@ public class Main extends ApplicationAdapter {
         // Create the platform and character bodies
         createPlatform();
 
-        cloud = new FallObjCloud(world, 8, 16);
+        cloud = new FallObjCloud(world, Gdx.graphics.getWidth()/2 - 5, Gdx.graphics.getWidth()/2 + 5);
     }
 
     private void createPlatform() {
         // Define the platform body
         BodyDef bodyDef = new BodyDef();
         bodyDef.type = BodyDef.BodyType.StaticBody; // Platform is static
-        bodyDef.position.set(12, 1); // Position in Box2D meters
+        bodyDef.position.set(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2); // Position in Box2D meters
 
         // Create the body in the world
         platformBody = world.createBody(bodyDef);
@@ -62,11 +66,30 @@ public class Main extends ApplicationAdapter {
         shape.dispose();
     }
 
+    private void updateCamera() {
+        // Get the character's position
+        Vector2 characterPosition = r.getPosition();
+
+        int xCenter = Gdx.graphics.getWidth()/2;
+        int yCenter = Gdx.graphics.getHeight()/2;
+
+        // Smoothly move the camera towards the character
+        camera.position.x += (characterPosition.x - camera.position.x) * followSpeed * Gdx.graphics.getDeltaTime();
+        camera.position.y += (characterPosition.y - camera.position.y) * followSpeed * Gdx.graphics.getDeltaTime();
+
+        // Optional: Clamp the camera to certain bounds
+        int diffX = 500;
+        int diffY = 400;
+        camera.position.x = MathUtils.clamp(camera.position.x, xCenter-diffX, xCenter+diffX); // Adjust max bounds
+        camera.position.y = MathUtils.clamp(camera.position.y, yCenter-diffY, yCenter+diffY);
+        System.out.println("Camera position: (" + camera.position.x + ", " + camera.position.y + ")");
+    }
+
     @Override
     public void render() {
         // Step the physics world
         world.step(1 / 60f, 6, 4);
-
+        updateCamera();
         // Clear the screen
         Gdx.gl.glClearColor(1, 1, 1, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
