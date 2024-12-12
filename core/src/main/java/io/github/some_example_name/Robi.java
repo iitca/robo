@@ -26,6 +26,10 @@ public class Robi {
     private TextureRegion characterTextureRegion;
     private boolean isOnGround = false;
 
+    private float jumpForce = 0f;
+    private float maxJumpForce = 20; // Maximum jump force
+    private float jumpChargeRate = 75; // Rate of force increase per second
+    private boolean isJumping = false;
     private World w;
 
     public Robi(World world)
@@ -63,51 +67,12 @@ public class Robi {
 
         characterBody.createFixture(fixtureDef);
         characterBody.setFixedRotation(true);
+        characterBody.setGravityScale(5.0f);
 
         // Load character texture
         characterTexture = new Texture("robi/move_left/sketch_L_0.png"); // Ensure this is in the assets folder
         characterTextureRegion = new TextureRegion(characterTexture);
 
-
-        PolygonShape sensorShape = new PolygonShape();
-        sensorShape.setAsBox(0.5f, 0.2f, new Vector2(0, -0.5f), 0);
-        FixtureDef sensorFixtureDef = new FixtureDef();
-        sensorFixtureDef.shape = sensorShape;
-        sensorFixtureDef.isSensor = true;
-
-        characterBody.createFixture(sensorFixtureDef);
-
-        w.setContactListener(new ContactListener() {
-            @Override
-            public void beginContact(Contact contact) {
-                if (isSensor(contact))
-                {
-                    isOnGround = true;
-                }
-            }
-
-            @Override
-            public void endContact(Contact contact) {
-                if (isSensor(contact))
-                {
-                    isOnGround = false;
-                }
-            }
-
-            @Override
-            public void preSolve(Contact contact, Manifold oldManifold) {
-
-            }
-
-            @Override
-            public void postSolve(Contact contact, ContactImpulse impulse) {
-
-            }
-        });
-
-
-        // Dispose of the shape after use
-        sensorShape.dispose();
         shape.dispose();
     }
 
@@ -122,11 +87,26 @@ public class Robi {
             characterBody.setLinearVelocity(new Vector2(-5f, currentVelocity.y));
         }
 
-        if (Gdx.input.isKeyPressed(Input.Keys.SPACE) && isOnGround) {
-            //characterBody.applyLinearImpulse(new Vector2(0, 1), characterBody.getWorldCenter(), true);
-            characterBody.setLinearVelocity(new Vector2(currentVelocity.x, 25));
-            characterBody.setGravityScale(5.0f);
+        // Start charging jump when space is pressed
+        if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
+            isJumping = true;
+
+            // Increase jump force while space is held, but cap it at maxJumpForce
+            jumpForce += jumpChargeRate * Gdx.graphics.getDeltaTime();
+            if (jumpForce > maxJumpForce) {
+                jumpForce = maxJumpForce;
+            }
+        } else if (isJumping && !Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
+            // Apply the jump force when space is released
+            characterBody.setLinearVelocity(new Vector2(0, jumpForce));
+            // Reset jump state
+            isJumping = false;
+            jumpForce = 0f;
+
         }
+
+
+
 
         if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
             characterBody.setLinearVelocity(new Vector2(currentVelocity.x, -5));
