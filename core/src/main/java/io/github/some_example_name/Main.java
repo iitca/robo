@@ -22,6 +22,9 @@ public class Main extends ApplicationAdapter {
     private Robi r;
     private FallObjCloud cloud;
 
+    private Texture backgroundTexture;
+    float zoomFactor = 0.08f;
+
     @Override
     public void create() {
         // Initialize Box2D world with gravity
@@ -32,7 +35,7 @@ public class Main extends ApplicationAdapter {
 
         // Set up the camera
         camera = new OrthographicCamera();
-        camera.setToOrtho(false, 800 / 32f, 480 / 32f); // Convert pixels to meters
+        camera.setToOrtho(false, 1024 / 32.0f, 768 / 32.0f); // Convert pixels to meters
         camera.position.x = Gdx.graphics.getWidth()/2;
         camera.position.y = Gdx.graphics.getHeight()/2 + 5;
 
@@ -42,6 +45,8 @@ public class Main extends ApplicationAdapter {
         spriteBatch = new SpriteBatch();
         // Create the platform and character bodies
         createPlatform();
+
+        backgroundTexture = new Texture("background/space_background.png"); // Place this file in core/assets
 
         cloud = new FallObjCloud(world, Gdx.graphics.getWidth()/2 - 5, Gdx.graphics.getWidth()/2 + 5);
     }
@@ -99,8 +104,9 @@ public class Main extends ApplicationAdapter {
 
         spriteBatch.setProjectionMatrix(camera.combined);
         spriteBatch.begin();
-
+        spriteBatch.draw(backgroundTexture, Gdx.graphics.getWidth()/2 - 800*zoomFactor/2, Gdx.graphics.getHeight()/2 - 800*zoomFactor/2, 800*zoomFactor, 800*zoomFactor);
         r.render(spriteBatch);
+
 
         spriteBatch.end();
 
