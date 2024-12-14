@@ -1,5 +1,7 @@
 package io.github.some_example_name;
 
+import static com.badlogic.gdx.math.MathUtils.floor;
+
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -23,7 +25,9 @@ public class Main extends ApplicationAdapter {
     private FallObjCloud cloud;
 
     private Texture backgroundTexture;
+    private Texture planetTexture;
     float zoomFactor = 0.08f;
+    float cameraPosition = 0.0f;
 
     @Override
     public void create() {
@@ -47,6 +51,7 @@ public class Main extends ApplicationAdapter {
         createPlatform();
 
         backgroundTexture = new Texture("background/space_background.png"); // Place this file in core/assets
+        planetTexture = new Texture("background/planet.png");
 
         cloud = new FallObjCloud(world, Gdx.graphics.getWidth()/2 - 5, Gdx.graphics.getWidth()/2 + 5);
     }
@@ -95,6 +100,11 @@ public class Main extends ApplicationAdapter {
         // Step the physics world
         world.step(1 / 60f, 6, 4);
         updateCamera();
+
+        //cameraPosition += 2 * Gdx.graphics.getDeltaTime() * 0.5;
+        float dX = (r.getPosition().x - Gdx.graphics.getWidth()/2) / 16;
+        float dY = (r.getPosition().y - Gdx.graphics.getHeight()/2) / 16;
+
         // Clear the screen
         Gdx.gl.glClearColor(1, 1, 1, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
@@ -105,6 +115,14 @@ public class Main extends ApplicationAdapter {
         spriteBatch.setProjectionMatrix(camera.combined);
         spriteBatch.begin();
         spriteBatch.draw(backgroundTexture, Gdx.graphics.getWidth()/2 - 800*zoomFactor/2, Gdx.graphics.getHeight()/2 - 800*zoomFactor/2, 800*zoomFactor, 800*zoomFactor);
+        //spriteBatch.draw(planetTexture, -cameraPosition + Gdx.graphics.getWidth()/2 - 400*zoomFactor/2, Gdx.graphics.getHeight()/2 - 400*zoomFactor/2, 400*zoomFactor, 400*zoomFactor);
+
+        spriteBatch.draw(
+                planetTexture,
+                -dX + Gdx.graphics.getWidth() / 2 - 400*zoomFactor/2,
+                -dY + Gdx.graphics.getHeight() / 2 - 400*zoomFactor/2,
+                400*zoomFactor, 400*zoomFactor
+        );
         r.render(spriteBatch);
 
 
