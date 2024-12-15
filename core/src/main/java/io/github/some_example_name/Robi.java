@@ -26,10 +26,10 @@ public class Robi {
     private TextureRegion characterTextureRegion;
     private boolean isOnGround = false;
 
-    private float jumpForce = 0f;
-    private float maxJumpForce = 20; // Maximum jump force
-    private float jumpChargeRate = 75; // Rate of force increase per second
-    private boolean isJumping = false;
+    private float jumpSpeed = 10.0f;
+
+    private float jumpTime = 0f; // How long the jump lasts
+    private final float maxJumpTime = 0.5f; // Maximum jump duration in seconds
     private World w;
 
     public Robi(World world)
@@ -87,24 +87,20 @@ public class Robi {
             characterBody.setLinearVelocity(new Vector2(-5f, currentVelocity.y));
         }
 
-        // Start charging jump when space is pressed
+        // Check if space is held and jump time hasn't reached the limit
         if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
-            isJumping = true;
+            if (jumpTime < maxJumpTime) {
+                // Apply upward force
+                characterBody.setLinearVelocity(new Vector2(currentVelocity.x, jumpSpeed));
 
-            // Increase jump force while space is held, but cap it at maxJumpForce
-            jumpForce += jumpChargeRate * Gdx.graphics.getDeltaTime();
-            if (jumpForce > maxJumpForce) {
-                jumpForce = maxJumpForce;
+                // Increment jump time
+                jumpTime += Gdx.graphics.getDeltaTime();
             }
-        } else if (isJumping && !Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
-            // Apply the jump force when space is released
-            characterBody.setLinearVelocity(new Vector2(0, jumpForce));
-            // Reset jump state
-            isJumping = false;
-            jumpForce = 0f;
-
         }
-
+        else
+        {
+            jumpTime = 0.0f;
+        }
 
 
 
