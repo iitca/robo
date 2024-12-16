@@ -114,7 +114,7 @@ public class Main extends ApplicationAdapter {
 
         spriteBatch.setProjectionMatrix(camera.combined);
         spriteBatch.begin();
-        spriteBatch.draw(backgroundTexture, Gdx.graphics.getWidth()/2 - 800*zoomFactor/2, Gdx.graphics.getHeight()/2 - 800*zoomFactor/2, 800*zoomFactor, 800*zoomFactor);
+        spriteBatch.draw(backgroundTexture, Gdx.graphics.getWidth()/2 - 800*zoomFactor/2, Gdx.graphics.getHeight()/2 - 800*zoomFactor/4, 800*zoomFactor, 800*zoomFactor);
         //spriteBatch.draw(planetTexture, -cameraPosition + Gdx.graphics.getWidth()/2 - 400*zoomFactor/2, Gdx.graphics.getHeight()/2 - 400*zoomFactor/2, 400*zoomFactor, 400*zoomFactor);
 
         spriteBatch.draw(
