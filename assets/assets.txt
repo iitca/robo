@@ -3,6 +3,8 @@ background/space_background.png
 com/badlogic/gdx/utils/lsans-15.fnt
 com/badlogic/gdx/utils/lsans-15.png
 libgdx.png
+robi/fireball_l.png
+robi/fireball_r.png
 robi/move_left/sketch_L_0.png
 robi/move_left/sketch_L_1.png
 robi/move_left/sketch_L_2.png
@@ -17,6 +19,7 @@ robi/move_right/sketch_R_3.png
 robi/move_right/sketch_R_4.png
 robi/move_right/sketch_R_5.png
 robi/move_right/sketch_R_6.png
+robi/robi_toaster.png
 ui/font-list.fnt
 ui/font-subtitle.fnt
 ui/font-window.fnt
