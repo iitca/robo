@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -31,6 +32,16 @@ public class Robi {
     private float jumpTime = 0f; // How long the jump lasts
     private final float maxJumpTime = 0.5f; // Maximum jump duration in seconds
     private World w;
+
+    private float stateTime = 0.0f;
+
+
+    private Animation<TextureRegion> thrustRAnimation;
+
+
+    private Animation<TextureRegion> thrustLAnimation;
+
+
 
     public Robi(World world)
     {
@@ -70,8 +81,32 @@ public class Robi {
         characterBody.setGravityScale(5.0f);
 
         // Load character texture
-        characterTexture = new Texture("robi/move_left/sketch_L_0.png"); // Ensure this is in the assets folder
+        characterTexture = new Texture("robi/robi_toaster.png"); // Ensure this is in the assets folder
         characterTextureRegion = new TextureRegion(characterTexture);
+
+
+
+        // Load spritesheet
+        Texture fireballSheet = new Texture("robi/fireball_r.png");
+
+        // Split into frames
+        TextureRegion[][] tmpFrames = TextureRegion.split(fireballSheet, 67, 8);
+        TextureRegion[] thrustFrames = new TextureRegion[tmpFrames[0].length];
+        System.arraycopy(tmpFrames[0], 0, thrustFrames, 0, tmpFrames[0].length);
+
+        // Create thrust animation right
+        thrustRAnimation = new Animation<>(0.05f, thrustFrames);
+        thrustRAnimation.setPlayMode(Animation.PlayMode.LOOP);
+
+        fireballSheet = new Texture("robi/fireball_l.png");
+        tmpFrames = TextureRegion.split(fireballSheet, 67, 8);
+        thrustFrames = new TextureRegion[tmpFrames[0].length];
+        System.arraycopy(tmpFrames[0], 0, thrustFrames, 0, tmpFrames[0].length);
+
+        // Create thrust animation left
+        thrustLAnimation = new Animation<>(0.05f, thrustFrames);
+        thrustLAnimation.setPlayMode(Animation.PlayMode.LOOP);
+
 
         shape.dispose();
     }
@@ -128,6 +163,12 @@ public class Robi {
         Vector2 position = characterBody.getPosition();
         float angle = characterBody.getAngle(); // In radians
 
+        stateTime += Gdx.graphics.getDeltaTime(); // Update elapsed time
+
+        // Get the current frame
+        TextureRegion currentFrame = thrustLAnimation.getKeyFrame(stateTime);
+        int ind = thrustLAnimation.getKeyFrameIndex(stateTime);
+
         // Draw the texture at the character's position
         float textureWidth = 1.0f; // Width in meters
         float textureHeight = 1.0f; // Height in meters
@@ -138,6 +179,14 @@ public class Robi {
                 1, 1, // Scale
                 angle * 57.2958f // Convert radians to degrees for rotation
         );
+        if (jumpTime > 0.0f && jumpTime < maxJumpTime) {
+            b.draw(currentFrame, position.x - textureWidth / 4, position.y - textureHeight * 1.5f,
+                    textureWidth / 2, textureHeight / 2,
+                    textureWidth * 2, textureHeight / 2,
+                    1, 1,
+                    (float) Math.PI * 3 / 2 * 57.2958f // Convert radians to degrees for rotation
+            ); // Draw at position (100, 100)
+        }
     }
 
     public Vector2 getPosition()
