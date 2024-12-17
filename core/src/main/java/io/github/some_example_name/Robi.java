@@ -23,8 +23,9 @@ import com.badlogic.gdx.physics.box2d.World;
 public class Robi {
 
     private Body characterBody;
-    private Texture characterTexture;
-    private TextureRegion characterTextureRegion;
+    private Texture characterTexture, characterTextureL, characterTextureR;
+    private TextureRegion characterTextureRegion, characterTextureRegionL, characterTextureRegionR;
+
     private boolean isOnGround = false;
 
     private float jumpSpeed = 10.0f;
@@ -81,9 +82,14 @@ public class Robi {
         characterBody.setGravityScale(5.0f);
 
         // Load character texture
-        characterTexture = new Texture("robi/robi_toaster.png"); // Ensure this is in the assets folder
+        characterTexture = new Texture("robi/robi_toaster_f.png"); // Ensure this is in the assets folder
         characterTextureRegion = new TextureRegion(characterTexture);
 
+        characterTextureL = new Texture("robi/robi_toaster_l.png"); // Ensure this is in the assets folder
+        characterTextureRegionL = new TextureRegion(characterTextureL);
+
+        characterTextureR = new Texture("robi/robi_toaster_r.png"); // Ensure this is in the assets folder
+        characterTextureRegionR = new TextureRegion(characterTextureR);
 
 
         // Load spritesheet
@@ -172,13 +178,51 @@ public class Robi {
         // Draw the texture at the character's position
         float textureWidth = 1.0f; // Width in meters
         float textureHeight = 1.0f; // Height in meters
-        b.draw(characterTextureRegion,
-                position.x - textureWidth / 2, position.y - textureHeight / 2, // Bottom-left corner
-                textureWidth / 2, textureHeight / 2, // Origin for rotation (center of the texture)
-                textureWidth, textureHeight, // Dimensions
-                1, 1, // Scale
-                angle * 57.2958f // Convert radians to degrees for rotation
-        );
+
+        if (Gdx.input.isKeyPressed(Input.Keys.LEFT))
+        {
+            b.draw(characterTextureRegionL,
+                    position.x - textureWidth / 2, position.y - textureHeight / 2, // Bottom-left corner
+                    textureWidth / 2, textureHeight / 2, // Origin for rotation (center of the texture)
+                    textureWidth, textureHeight, // Dimensions
+                    1, 1, // Scale
+                    angle * 57.2958f // Convert radians to degrees for rotation
+            );
+            b.draw(currentFrame, position.x + 0.2f, position.y - textureHeight * 0.35f,
+                    textureWidth / 2, textureHeight / 2,
+                    textureWidth * 2, textureHeight / 2,
+                    0.4f, 0.4f,
+                    (float) 0 * 57.2958f // Convert radians to degrees for rotation
+            ); // Draw at position (100, 100)
+        }
+        else if (Gdx.input.isKeyPressed(Input.Keys.RIGHT))
+        {
+            b.draw(characterTextureRegionR,
+                    position.x - textureWidth / 2, position.y - textureHeight / 2, // Bottom-left corner
+                    textureWidth / 2, textureHeight / 2, // Origin for rotation (center of the texture)
+                    textureWidth, textureHeight, // Dimensions
+                    1, 1, // Scale
+                    angle * 57.2958f // Convert radians to degrees for rotation
+            );
+            b.draw(currentFrame, position.x - textureWidth - 0.2f, position.y - textureHeight * 0.5f,
+                    textureWidth / 2, textureHeight / 2,
+                    textureWidth * 2, textureHeight / 2,
+                    0.4f, 0.4f,
+                    (float) Math.PI * 57.2958f // Convert radians to degrees for rotation
+            ); // Draw at position (100, 100)
+        }
+        else
+        {
+            b.draw(characterTextureRegion,
+                    position.x - textureWidth / 2, position.y - textureHeight / 2, // Bottom-left corner
+                    textureWidth / 2, textureHeight / 2, // Origin for rotation (center of the texture)
+                    textureWidth, textureHeight, // Dimensions
+                    1, 1, // Scale
+                    angle * 57.2958f // Convert radians to degrees for rotation
+            );
+        }
+
+
         if (jumpTime > 0.0f && jumpTime < maxJumpTime) {
             b.draw(currentFrame, position.x - textureWidth / 4, position.y - textureHeight * 1.5f,
                     textureWidth / 2, textureHeight / 2,

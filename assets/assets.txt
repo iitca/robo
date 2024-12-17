@@ -20,6 +20,9 @@ robi/move_right/sketch_R_4.png
 robi/move_right/sketch_R_5.png
 robi/move_right/sketch_R_6.png
 robi/robi_toaster.png
+robi/robi_toaster_f.png
+robi/robi_toaster_l.png
+robi/robi_toaster_r.png
 ui/font-list.fnt
 ui/font-subtitle.fnt
 ui/font-window.fnt
