@@ -26,8 +26,6 @@ public class Robi {
     private Texture characterTexture, characterTextureL, characterTextureR;
     private TextureRegion characterTextureRegion, characterTextureRegionL, characterTextureRegionR;
 
-    private boolean isOnGround = false;
-
     private float jumpSpeed = 10.0f;
 
     private float jumpTime = 0f; // How long the jump lasts
@@ -119,20 +117,20 @@ public class Robi {
 
     public void move()
     {
-        Vector2 currentVelocity = characterBody.getLinearVelocity();
+        Vector2 velocity = characterBody.getLinearVelocity();
         if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-            characterBody.setLinearVelocity(new Vector2(5, currentVelocity.y));
+            velocity.x = 5f;
         }
 
         if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-            characterBody.setLinearVelocity(new Vector2(-5f, currentVelocity.y));
+            velocity.x = -5f;
         }
 
         // Check if space is held and jump time hasn't reached the limit
         if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
             if (jumpTime < maxJumpTime) {
                 // Apply upward force
-                characterBody.setLinearVelocity(new Vector2(currentVelocity.x, jumpSpeed));
+                velocity.y = jumpSpeed;
 
                 // Increment jump time
                 jumpTime += Gdx.graphics.getDeltaTime();
@@ -143,24 +141,7 @@ public class Robi {
             jumpTime = 0.0f;
         }
 
-
-
-        if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
-            characterBody.setLinearVelocity(new Vector2(currentVelocity.x, -5));
-        }
-
-        if ( !(Gdx.input.isKeyPressed(Input.Keys.RIGHT) ||
-                Gdx.input.isKeyPressed(Input.Keys.LEFT) ||
-                Gdx.input.isKeyPressed(Input.Keys.SPACE) ||
-                Gdx.input.isKeyPressed(Input.Keys.DOWN)) && isOnGround )
-        {
-            characterBody.setLinearVelocity(0,0 );
-        }
-
-        if (isOnGround)
-        {
-            //characterBody.setGravityScale(1.0f);
-        }
+        characterBody.setLinearVelocity(velocity);
     }
 
     public void render(SpriteBatch b)
@@ -237,7 +218,4 @@ public class Robi {
     {
         return characterBody.getPosition();
     }
-
-
-
 }
