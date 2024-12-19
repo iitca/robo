@@ -26,6 +26,12 @@ public class Main extends ApplicationAdapter {
 
     private Texture backgroundTexture;
     private Texture planetTexture;
+
+    private Environment env;
+
+    private Floating floater;
+
+    private Texture plankTexture;
     float zoomFactor = 0.08f;
     float cameraPosition = 0.0f;
 
@@ -48,26 +54,37 @@ public class Main extends ApplicationAdapter {
 
         spriteBatch = new SpriteBatch();
         // Create the platform and character bodies
-        createPlatform();
+
 
         backgroundTexture = new Texture("background/space_background.png"); // Place this file in core/assets
         planetTexture = new Texture("background/planet.png");
 
+        plankTexture = new Texture("plank/chocolate.png");
+        plankTexture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+
+        createPlatform();
+
         cloud = new FallObjCloud(world, Gdx.graphics.getWidth()/2 - 5, Gdx.graphics.getWidth()/2 + 5);
+
+        env = new Environment(1000);
+        env.create();
+
+        floater = new Floating(world);
     }
 
     private void createPlatform() {
         // Define the platform body
         BodyDef bodyDef = new BodyDef();
         bodyDef.type = BodyDef.BodyType.StaticBody; // Platform is static
-        bodyDef.position.set(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2); // Position in Box2D meters
+        bodyDef.position.set(Gdx.graphics.getWidth()/2,
+                                Gdx.graphics.getHeight()/2-10); // Position in Box2D meters
 
         // Create the body in the world
         platformBody = world.createBody(bodyDef);
 
         // Define the shape of the platform
         PolygonShape shape = new PolygonShape();
-        shape.setAsBox(8, 0.5f); // Half-width and half-height in meters
+        shape.setAsBox(8, 8); // Half-width and half-height in meters
 
         // Attach the shape to the platform body
         platformBody.createFixture(shape, 0f); // Density = 0 for static bodies
@@ -106,8 +123,10 @@ public class Main extends ApplicationAdapter {
         float dY = (r.getPosition().y - Gdx.graphics.getHeight()/2) / 16;
 
         // Clear the screen
-        Gdx.gl.glClearColor(1, 1, 1, 1);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        //Gdx.gl.glClearColor(1, 1, 1, 1);
+        //Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT | (Gdx.graphics.getBufferFormat().coverageSampling?GL20.GL_COVERAGE_BUFFER_BIT_NV:0));
 
         r.move();
         cloud.spawn();
@@ -115,7 +134,6 @@ public class Main extends ApplicationAdapter {
         spriteBatch.setProjectionMatrix(camera.combined);
         spriteBatch.begin();
         spriteBatch.draw(backgroundTexture, Gdx.graphics.getWidth()/2 - 800*zoomFactor/2, Gdx.graphics.getHeight()/2 - 800*zoomFactor/4, 800*zoomFactor, 800*zoomFactor);
-        //spriteBatch.draw(planetTexture, -cameraPosition + Gdx.graphics.getWidth()/2 - 400*zoomFactor/2, Gdx.graphics.getHeight()/2 - 400*zoomFactor/2, 400*zoomFactor, 400*zoomFactor);
 
         spriteBatch.draw(
                 planetTexture,
@@ -123,14 +141,22 @@ public class Main extends ApplicationAdapter {
                 -dY + Gdx.graphics.getHeight() / 2 - 400*zoomFactor/2,
                 400*zoomFactor, 400*zoomFactor
         );
+
+        spriteBatch.draw(plankTexture,
+                platformBody.getPosition().x - plankTexture.getWidth()*zoomFactor/4/2,
+                platformBody.getPosition().y - plankTexture.getWidth()*zoomFactor/8 + 0.5f,
+                plankTexture.getWidth()*zoomFactor/4,
+                plankTexture.getHeight()*zoomFactor/4);
+
         r.render(spriteBatch);
-
-
+        cloud.render(spriteBatch);
+        env.render(spriteBatch);
+        floater.render(spriteBatch, camera);
         spriteBatch.end();
 
 
         // Render the debug view
-        debugRenderer.render(world, camera.combined);
+        //debugRenderer.render(world, camera.combined);
 
         // Update the camera
         camera.update();

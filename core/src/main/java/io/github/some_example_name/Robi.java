@@ -81,17 +81,21 @@ public class Robi {
 
         // Load character texture
         characterTexture = new Texture("robi/robi_toaster_f.png"); // Ensure this is in the assets folder
+        characterTexture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
         characterTextureRegion = new TextureRegion(characterTexture);
 
         characterTextureL = new Texture("robi/robi_toaster_l.png"); // Ensure this is in the assets folder
+        characterTextureL.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
         characterTextureRegionL = new TextureRegion(characterTextureL);
 
         characterTextureR = new Texture("robi/robi_toaster_r.png"); // Ensure this is in the assets folder
+        characterTextureR.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
         characterTextureRegionR = new TextureRegion(characterTextureR);
 
 
         // Load spritesheet
         Texture fireballSheet = new Texture("robi/fireball_r.png");
+        fireballSheet.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
 
         // Split into frames
         TextureRegion[][] tmpFrames = TextureRegion.split(fireballSheet, 67, 8);

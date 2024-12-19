@@ -1,6 +1,7 @@
 package io.github.some_example_name;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
@@ -14,7 +15,7 @@ public class FallObjCloud {
     int l;
     int r;
     private World w;
-    private int objNumMax = 100;
+    private int objNumMax = 50;
 
     private Array<FallObj> myObjects;
 
@@ -31,7 +32,7 @@ public class FallObjCloud {
     {
         for (int i = 0; i < myObjects.size; i++)
         {
-            if(myObjects.get(i).getPosition().y < Gdx.graphics.getHeight()/2)
+            if(myObjects.get(i).getPosition().y < Gdx.graphics.getHeight()/16)
             {
                 myObjects.removeIndex(i);
             }
@@ -40,11 +41,21 @@ public class FallObjCloud {
         for (int i = 0; i < (objNumMax-myObjects.size); i++)
         {
             FallObj fO = new FallObj(w, MathUtils.random(l, r), MathUtils.random(Gdx.graphics.getHeight()/2 + 5, Gdx.graphics.getHeight()/2 + 25));
-            fO.create();
+            fO.create(
+                    MathUtils.random(2)
+            );
 
             myObjects.add(fO);
         }
 
+    }
+
+    public void render(SpriteBatch b)
+    {
+        for (int i = 0; i < myObjects.size; i++)
+        {
+            myObjects.get(i).render(b);
+        }
     }
 
 

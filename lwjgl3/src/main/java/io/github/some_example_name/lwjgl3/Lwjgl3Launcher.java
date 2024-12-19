@@ -33,6 +33,7 @@ public class Lwjgl3Launcher {
         configuration.setResizable(false);
         //// You can change these files; they are in lwjgl3/src/main/resources/ .
         configuration.setWindowIcon("libgdx128.png", "libgdx64.png", "libgdx32.png", "libgdx16.png");
+        configuration.setBackBufferConfig(8, 8, 8, 8, 16, 0, 8);
         return configuration;
     }
 }
