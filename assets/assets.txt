@@ -2,7 +2,14 @@ background/planet.png
 background/space_background.png
 com/badlogic/gdx/utils/lsans-15.fnt
 com/badlogic/gdx/utils/lsans-15.png
+environment/cosmonaut.png
+environment/effects/particle.png
+environment/fly.p
+falling/bread.png
+falling/cake.png
+falling/croissant.png
 libgdx.png
+plank/chocolate.png
 robi/fireball_l.png
 robi/fireball_r.png
 robi/move_left/sketch_L_0.png
